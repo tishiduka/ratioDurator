@@ -28,35 +28,26 @@ setScore()で指定される、あるいは0（デフォルト）で示される
     score : 0
     probability to dropout : 50%.
 
-## 設定項目
-
-### DEFAULT_PROBABILITY
-外れる確率を設定します。
-setProbability()が呼ばれない場合、この値が初期値として使われます。
-
-### DEFAULT_RATIO
-外れ確率調整量を設定します。
-setRatio()が呼ばれない場合、この値が初期値として使われます。
-
-### DEFAULT_LIMIT
-カンスト値を設定します。
-setLimit()が呼ばれない場合、この値が初期値として使われます。
-
 ## メソッド
 ### setProbability($value)
-インスタンス生成後に外れる確率を設定します。
+外れる確率を設定します。
 $valueに数値として無効なものを指定した場合、FALSEを返します。
 
 ### setRatio($value)
-インスタンス生成後に外れ確率調整量を設定します。
+外れ確率調整量を設定します。
 $valueに数値として無効なものを指定した場合、FALSEを返します。
 
-### setLimit($value)
-インスタンス生成後にカンスト値を設定します。
+### setUpperLimit($value)
+カンスト上限値を設定します。
 $valueに数値として無効なものを指定した場合、FALSEを返します。
 
-### setScore($value)
-インスタンス生成後スコア値を設定します。
+### setLowerLimit($value)
+カンスト下限値を設定します。
+$valueに数値として無効なものを指定した場合、FALSEを返します。
+ここで設定した値は、絶対値モードでは無視されます。
+
+### setPeak($value)
+中心値を設定します。
 $valueに数値として無効なものを指定した場合、FALSEを返します。
 
 ### setAbsMode($flag)
