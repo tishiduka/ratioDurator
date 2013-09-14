@@ -5,27 +5,30 @@
 
 class ratioDurator {
 	// 定数
-	const DEFAULT_RATIO       = 1.1;   // 外れる確率を調整する幅
-	const DEFAULT_PROBABILITY = 0.5;   // 外れる確率
-	const DEFAULT_LIMIT       = 10;    // カンスト上限値
-	const DEFAULT_SCORE       = 0;     // 最低値
-	const DEFAULT_ABS_MODE    = FALSE; // 絶対値モード
+	const DEFAULT_RATIO        = 1.1;   // 外れる確率を調整する幅
+	const DEFAULT_PROBABILITY  = 0.25;   // 外れる確率
+	const DEFAULT_UPPER_LIMIT  = 10;    // カンスト上限値
+	const DEFAULT_LOWER_LIMIT  = 0;     // カンスト下限値
+	const DEFAULT_PEAK         = 0;     // 中心値からの範囲絶対値
+	const DEFAULT_ABS_MODE     = FALSE; // 絶対値モード
 
 	// プロパティ
 	private $flg         = TRUE;  // 判定フラグ
 	private $ratio       = null;  // 外れる確率を調整する割合
 	private $probability = null;  // 外れる確率
-	private $limit       = null;  // 最大値
+	private $upper_limit = null;  // カンスト上限値
+	private $lower_limit = null;  // カンスト最大値
 	private $score       = null;  // スコア
+	private $peak        = null;  // 中心からの範囲絶対値
 	private $abs_mode    = null; // 絶対値モードフラグ TRUEにするとscoreから負に向かう値も扱う
 
 	public function __construct() {
 		// 初期設定
 		$this->ratio       = $this::DEFAULT_RATIO;
 		$this->probability = $this::DEFAULT_PROBABILITY;
-		$this->limit       = $this::DEFAULT_LIMIT;
-		$this->score       = $this::DEFAULT_SCORE;
-		$this->score       = $this::DEFAULT_SCORE;
+		$this->upper_limit = $this::DEFAULT_UPPER_LIMIT;
+		$this->lower_limit = $this::DEFAULT_LOWER_LIMIT;
+		$this->peak        = $this::DEFAULT_PEAK;
 		$this->abs_mode    = $this::DEFAULT_ABS_MODE;
 	}
 
@@ -47,22 +50,41 @@ class ratioDurator {
 		$this->probability = $value;
 	}
 
-	// カンスト値を設定
-	public function setLimit($value) {
-		if(!(is_numeric($value)))
+	// カンスト上限値を設定
+	public function setUpperLimit($value) {
+		if(
+			!(is_int($value)) || 
+			(int)$this->peak > (int)$value
+		)
 		{
 			return FALSE;
 		}
-		$this->limit = $value;
+		$this->upper_limit = $value;
 	}
 
-	// スコア初期値を設定
-	public function setScore($value) {
-		if(!(is_numeric($value)))
+	// カンスト上限値を設定
+	public function setLowerLimit($value) {
+		if(
+			!(is_int($value)) || 
+			(int)$this->peak < (int)$value
+		)
 		{
 			return FALSE;
 		}
-		$this->score = $value;
+		$this->lower_limit = $value;
+	}
+
+	// 中心値を設定
+	public function setPeak($value) {
+		if(
+			!(is_int($value)) || 
+			(int)$this->upper_limit < (int)$value ||
+			(int)$this->lower_limit > (int)$value
+		)
+		{
+			return FALSE;
+		}
+		$this->peak = $value;
 	}
 
 	// 絶対値モード設定
@@ -76,6 +98,7 @@ class ratioDurator {
 		// TRUEだったらスコアをインクリメント
 		// FALSEだったら終わる
 		// カンストした時も終わる
+		$score = 0;
 		do
 		{
 			// 外れ判定
@@ -88,19 +111,34 @@ class ratioDurator {
 				$this->probability *= $this->ratio;
 
 				// スコア加算
-				$this->score++;
+				$score++;
 			}
-		} while($this->flg && ($this->limit >= $this->score));
-		// 外れるかカンストするまで続ける
-
-		// 絶対値モードONの場合、府の値も取りうる。
-		if($this->abs_mode) {
-			if((mt_rand(1,2) % 2) === 0)
+			
+			// 外れるかカンストするまで続ける
+			if(
+				(abs((int)($this->upper_limit) - (int)($this->peak)) <= $score) &&
+				(($this->abs_mode) && (abs((int)($this->lower_limit) - (int)($this->peak)) <= $score))
+			)
 			{
-				$this->score *= -1;
+				break;
 			}
+		} while($this->flg);
+
+		// 中心値からのズレを計算
+		if($this->abs_mode) {
+			// 絶対値モード
+			if((mt_rand(1,2) % 2) === 0){
+				// 減らす方向
+				$result = $this->peak - $score;
+			} else {
+				// 増やす方向
+				$result = $this->peak + $score;
+			}
+		} else {
+			// 通常モード
+			$result = $this->peak + $score;
 		}
-		return $this->score;
+		return $result;
 	}
 
 	// 外れ確率を取得

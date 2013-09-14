@@ -2,9 +2,9 @@
 require_once('./ratioDurator.php');
 
 $obj = new ratioDurator;
-$obj->setProbability(0.5);
+$obj->setProbability(0.4);
 $obj->setRatio(1.1);
-$obj->setLimit(10);
+$obj->setUpperLimit(10);
 $score = $obj->getValue();
 $dur = $obj->getProbability();
 
