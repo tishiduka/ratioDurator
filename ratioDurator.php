@@ -70,7 +70,7 @@ class ratioDurator {
 				// スコア加算
 				$this->score++;
 			}
-		} while($this->flg && ($this->limit > $this->score));
+		} while($this->flg && ($this->limit >= $this->score));
 		// 外れるかカンストするまで続ける
 
 		return $this->score;
