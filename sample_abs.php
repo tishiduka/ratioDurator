@@ -5,6 +5,7 @@ $obj = new ratioDurator;
 $obj->setProbability(0.5);
 $obj->setRatio(1.1);
 $obj->setLimit(10);
+$obj->setAbsMode(TRUE);
 $score = $obj->getValue();
 $dur = $obj->getProbability();
 
