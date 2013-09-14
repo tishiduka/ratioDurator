@@ -62,7 +62,7 @@ class ratioDurator {
 		$this->upper_limit = $value;
 	}
 
-	// カンスト上限値を設定
+	// カンスト下限限値を設定
 	public function setLowerLimit($value) {
 		if(
 			!(is_int($value)) || 
@@ -77,7 +77,7 @@ class ratioDurator {
 	// 中心値を設定
 	public function setPeak($value) {
 		if(
-			!(is_int($value)) || 
+			!(is_int($value)) ||
 			(int)$this->upper_limit < (int)$value ||
 			(int)$this->lower_limit > (int)$value
 		)
@@ -115,12 +115,18 @@ class ratioDurator {
 			}
 			
 			// 外れるかカンストするまで続ける
-			if(
-				(abs((int)($this->upper_limit) - (int)($this->peak)) <= $score) &&
-				(($this->abs_mode) && (abs((int)($this->lower_limit) - (int)($this->peak)) <= $score))
-			)
-			{
-				break;
+			if($this->abs_mode) {
+				if ( 
+					(($this->abs_mode) && abs((int)($this->upper_limit) - (int)($this->peak)) <= $score) &&
+					(($this->abs_mode) && (abs((int)($this->lower_limit) - (int)($this->peak)) <= $score))
+				)
+				{
+					break;
+				}
+			} else {
+				if ((int)($this->upper_limit) <= (int)($score)) {
+					break;
+				}
 			}
 		} while($this->flg);
 
