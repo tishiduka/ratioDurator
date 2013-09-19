@@ -13,7 +13,6 @@ class ratioDurator {
 	const DEFAULT_ABS_MODE     = FALSE; // 絶対値モード
 
 	// プロパティ
-	private $flg         = TRUE;  // 判定フラグ
 	private $ratio       = null;  // 外れる確率を調整する割合
 	private $probability = null;  // 外れる確率
 	private $upper_limit = null;  // カンスト上限値
@@ -24,12 +23,12 @@ class ratioDurator {
 
 	public function __construct() {
 		// 初期設定
-		$this->ratio       = $this::DEFAULT_RATIO;
-		$this->probability = $this::DEFAULT_PROBABILITY;
-		$this->upper_limit = $this::DEFAULT_UPPER_LIMIT;
-		$this->lower_limit = $this::DEFAULT_LOWER_LIMIT;
-		$this->peak        = $this::DEFAULT_PEAK;
-		$this->abs_mode    = $this::DEFAULT_ABS_MODE;
+		$this->ratio       = (double)($this::DEFAULT_RATIO);
+		$this->probability = (double)($this::DEFAULT_PROBABILITY);
+		$this->upper_limit = (int)($this::DEFAULT_UPPER_LIMIT);
+		$this->lower_limit = (int)($this::DEFAULT_LOWER_LIMIT);
+		$this->peak        = (int)($this::DEFAULT_PEAK);
+		$this->abs_mode    = (boolean)$this::DEFAULT_ABS_MODE;
 	}
 
 	// 外れ確率調整量を設定
@@ -38,7 +37,7 @@ class ratioDurator {
 		{
 			return FALSE;
 		}
-		$this->ratio = $value;
+		$this->ratio = (double)$value;
 	}
 
 	// 外れ確率を設定
@@ -47,7 +46,7 @@ class ratioDurator {
 		{
 			return FALSE;
 		}
-		$this->probability = $value;
+		$this->probability = (double)$value;
 	}
 
 	// カンスト上限値を設定
@@ -59,7 +58,7 @@ class ratioDurator {
 		{
 			return FALSE;
 		}
-		$this->upper_limit = $value;
+		$this->upper_limit = (int)$value;
 	}
 
 	// カンスト下限限値を設定
@@ -71,7 +70,7 @@ class ratioDurator {
 		{
 			return FALSE;
 		}
-		$this->lower_limit = $value;
+		$this->lower_limit = (int)$value;
 	}
 
 	// 中心値を設定
@@ -84,12 +83,12 @@ class ratioDurator {
 		{
 			return FALSE;
 		}
-		$this->peak = $value;
+		$this->peak = (int)$value;
 	}
 
 	// 絶対値モード設定
 	public function setAbsMode($mode) {
-		$this->abs_mode = $mode;
+		$this->abs_mode = (boolean)$mode;
 	}
 
 	// 重み付けを考慮したランダム値を出力
@@ -99,63 +98,66 @@ class ratioDurator {
 		// FALSEだったら終わる
 		// カンストした時も終わる
 		$score = 0;
+		$flg   = TRUE;
 		do
 		{
 			// 外れ判定
-			$this->flg = $this->_check($this->probability);
+			$flg = $this->_check($this->probability);
 
 			// 外れていなかったら？
-			if($this->flg)
+			if($flg)
 			{
 				// 外れ確率アップ
-				$this->probability *= $this->ratio;
+				$this->probability = (double)($this->probability) * (double)($this->ratio);
 
 				// スコア加算
 				$score++;
 			}
 			
 			// 外れるかカンストするまで続ける
-			if($this->abs_mode) {
+			if((boolean)($this->abs_mode)) {
 				if ( 
-					(($this->abs_mode) && abs((int)($this->upper_limit) - (int)($this->peak)) <= $score) &&
-					(($this->abs_mode) && (abs((int)($this->lower_limit) - (int)($this->peak)) <= $score))
+					(($this->abs_mode) && ((int)(abs((int)($this->upper_limit) - (int)($this->peak))) <= (int)($score))) &&
+					(($this->abs_mode) && ((int)(abs((int)($this->lower_limit) - (int)($this->peak))) <= (int)($score)))
 				)
 				{
-					break;
+					$flg = FALSE;
 				}
 			} else {
 				if ((int)($this->upper_limit) <= (int)($score)) {
-					break;
+					$flg = FALSE;
 				}
 			}
-		} while($this->flg);
+		}
+		while($flg);
 
 		// 中心値からのズレを計算
 		if($this->abs_mode) {
 			// 絶対値モード
 			if((mt_rand(1,2) % 2) === 0){
 				// 減らす方向
-				$result = $this->peak - $score;
+				$result = (int)($this->peak) - (int)($score);
 			} else {
 				// 増やす方向
-				$result = $this->peak + $score;
+				$result = (int)($this->peak) + (int)($score);
 			}
 		} else {
 			// 通常モード
-			$result = $this->peak + $score;
+			$result = (int)($this->peak) + (int)($score);
 		}
-		return $result;
+		return (int)$result;
 	}
 
 	// 外れ確率を取得
+	// 使い道はあんまりないが、デモのためだけに付けた。
 	public function getProbability()
 	{
-		return $this->probability;
+		return (double)($this->probability);
 	}
 
 	// 外れる確率を渡してBOOLを返す
 	private function _check($probability){
 		$val = mt_rand(0,100);
-		return ($val >= ((double)$probability * 100) ? TRUE : FALSE);
+		return ((int)($val) >= ((round)((double)$probability * 100)) ? TRUE : FALSE);
 	}
 }
