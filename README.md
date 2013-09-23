@@ -12,7 +12,7 @@
     <?php
         require_once('./duratedRandomizer.php');
  
-        obj = new duratedRandomizer;
+        $obj = new duratedRandomizer;
         $obj->setProbability(0.5);
         $obj->setDuration(1.1);
         $obj->setLimit(10);
