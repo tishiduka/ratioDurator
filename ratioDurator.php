@@ -156,8 +156,9 @@ class ratioDurator {
 	}
 
 	// 外れる確率を渡してBOOLを返す
-	private function _check($probability){
+	private function _check($probability)
+	{
 		$val = mt_rand(0,100);
-		return ((int)($val) >= ((round)((double)$probability * 100)) ? TRUE : FALSE);
+		return (((int)$val) >= (round((double)$probability * 100)) ? TRUE : FALSE);
 	}
 }
